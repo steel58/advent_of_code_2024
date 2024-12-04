@@ -34,67 +34,54 @@ int main() {
             found_datapoints++;
         }
 
-        int safe = 1;
-        int dampener = 1;
-        int increasing = 0;
-        for (int i = 1; i < found_datapoints; i++) {
-            int current = process[i];
-            int previous = process[i - 1];
-            if (increasing == 0) {
-                if (current > previous) {
-                    increasing = 1;
-                } else if (previous > current) {
-                    increasing = -1;
-                } else {
-                    safe = 0;
-                    break;
-                }
-            }
-
-            int diff = (current - previous) * increasing;
-
-            if (diff == 0) {
-                if (dampener == 1) {
-                    dampener = 0;
-                } else {
-                    safe = 0;
-                    break;
-                }
-            }
-
-            if (diff > 3) {
-                if (dampener == 1) {
-                    if (i == 1) {
-                        int next = process[i + 1];
-                        int next_diff = abs(next - current);
-                        if (next_diff > 3) {
-                            dampener = 0;
-                            process[i] = process[i - 1];
-                        }
+        int* new_process = calloc(found_datapoints, sizeof(int));
+        for (int ignore = 0; ignore <= found_datapoints; ignore++) {
+            int safe = 1;
+            int increasing = 0;
+            int arr_len = found_datapoints;
+            if (ignore != found_datapoints) {
+                for (int i = 0; i < found_datapoints-1; i++) {
+                    if (i >= ignore) {
+                        new_process[i] = process[i+1];
                     } else {
-                        dampener = 0;
-                        process[i] = process[i - 1];
+                        new_process[i] = process[i];
                     }
-                } else {
+                }
+                arr_len = found_datapoints - 1;
+            }
+
+            for (int i = 1; i < arr_len; i++) {
+                int current = new_process[i];
+                int previous = new_process[i - 1];
+                if (increasing == 0) {
+                    if (current > previous) {
+                        increasing = 1;
+                    } else if (previous > current) {
+                        increasing = -1;
+                    } else {
+                        safe = 0;
+                        break;
+                    }
+                }
+
+                int diff = (current - previous) * increasing;
+
+                if (diff <= 0) {
+                    safe = 0;
+                    break;
+                }
+
+                if (diff > 3) {
                     safe = 0;
                     break;
                 }
             }
 
-            if (diff < 0) {
-                if (dampener == 1) {
-                } else {
-                    safe = 0;
-                    break;
-                }
+            if (safe == 1) {
+                total_safe += safe;
+                break;
             }
         }
-
-        if (safe == 0) {
-            printf("Unsafe: %s\n", line);
-        }
-
-        total_safe += safe;
     }
 
 
